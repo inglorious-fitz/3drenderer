@@ -1,38 +1,43 @@
 #version 330 core
-                    in vec3 Normal;
-                    in vec4 glPosition;
-                    in vec3 glColor;
-                    in vec2 TexC;
 
+in vec3 Normal;
+in vec4 glPosition;
+in vec3 glColor;
+in vec2 TexC;
 
-                    out vec4 FragColor;
-                    uniform bool interpolation;
-		    uniform sampler2D ourTexture;
-                    uniform float opacity;
-                    uniform vec3 viewPos;
-                    uniform int numlight;
-                    uniform vec3 tint;
-                    uniform vec3 shaderColor;
-struct Material{
-vec3 ambient;
-vec3 diffuse;
-vec3 specular;
-float shininess;
-bool hastexture;
+out vec4 FragColor;
+
+uniform bool interpolation;
+uniform sampler2D diffusemap;
+uniform float opacity;
+uniform vec3 viewPos;
+uniform int numlight;
+uniform vec3 tint;
+uniform vec3 shaderColor;
+
+struct Material {
+    vec3 ambient;
+    vec4 diffuse;
+    vec3 specular;
+    float shininess;
+    bool hasdiffuse;
+    bool hasspecular;
 };
+
 uniform Material material;
 
+void main()
+{
+    vec4 color;
 
-                    void main()
-                    {
-                    if (material.hastexture){
-                    FragColor = texture(ourTexture, TexC)*vec4(tint,1.0);
-}else{
-                    if (interpolation) {
-                    FragColor = vec4(glColor , opacity)*vec4(tint,1.0);
-                    }
-                    else{
-                    FragColor=vec4(shaderColor, opacity)*vec4(tint,1.0);
-                    }
+    if (material.hasdiffuse) {
+        color = texture(diffusemap, TexC);
+    } else if (interpolation) {
+        color = vec4(glColor, 1.0);
+    } else {
+        color = vec4(shaderColor, 1.0);
+    }
+
+    FragColor = color * vec4(tint, 1.0);
+    FragColor.a *= opacity;
 }
-                    }
